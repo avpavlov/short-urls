@@ -4,4 +4,4 @@ To launch
     cd short-urls
     sbt "runMain HttpServer <hostname>[:<port>]"
 
-Server will be available http://localhost:port
+Server will be available at http://localhost:port
