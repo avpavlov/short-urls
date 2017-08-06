@@ -1,1 +1,1 @@
-web: sbt "runMain HttpServer localhost:$PORT https://shrouded-oasis-50298.herokuapp.com"
+web: sbt "runMain HttpServer $PORT https://shrouded-oasis-50298.herokuapp.com"

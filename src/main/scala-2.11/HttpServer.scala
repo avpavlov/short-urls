@@ -33,26 +33,10 @@ object HttpServer {
   def main(args: Array[String]) {
     val handleExceptions = new HandleExceptions
 
-    val (host,port) = args(0).split(":") match {
-      case Array(h,p) => (h, p.toInt)
-      case Array(h) => (h, 80)
-      case _ => throw new IllegalArgumentException("Program expects hostname[:port] argument")
-    }
-
-    val (urlHost,urlPort) = if (args.length > 1)
-      args(1).split(":") match {
-        case Array(h,p) => (h, p.toInt)
-        case Array(h) => (h, 80)
-        case _ => throw new IllegalArgumentException("Program expects hostname[:port] argument")
-      } else {
-        (host,port)
-      }
+    val (host,port) = ("localhost", System.getProperty("PORT").toInt)
 
     val redirectMapping = "/r/"
-    val redirectPrefix = urlPort match {
-      case 80 => "http://"+host+redirectMapping
-      case _ => "http://"+urlHost+":"+urlPort+redirectMapping
-    }
+    val redirectPrefix = "https://shrouded-oasis-50298.herokuapp.com/r/"
 
     val router : Service[Request, Response] = new HttpMuxer()
       .withHandler("/c/", new ConvertUrl(urls, redirectPrefix))
