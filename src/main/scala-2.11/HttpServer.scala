@@ -39,10 +39,19 @@ object HttpServer {
       case _ => throw new IllegalArgumentException("Program expects hostname[:port] argument")
     }
 
+    val (urlHost,urlPort) = if (args.length > 1)
+      args(1).split(":") match {
+        case Array(h,p) => (h, p.toInt)
+        case Array(h) => (h, 80)
+        case _ => throw new IllegalArgumentException("Program expects hostname[:port] argument")
+      } else {
+        (host,port)
+      }
+
     val redirectMapping = "/r/"
-    val redirectPrefix = port match {
+    val redirectPrefix = urlPort match {
       case 80 => "http://"+host+redirectMapping
-      case _ => "http://"+host+":"+port+redirectMapping
+      case _ => "http://"+urlHost+":"+urlPort+redirectMapping
     }
 
     val router : Service[Request, Response] = new HttpMuxer()
