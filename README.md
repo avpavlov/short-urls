@@ -1,7 +1,9 @@
-To listen on default port
+Launch on default port
   
-  sbt run
+    git clone https://github.com/avpavlov/short-urls.git
+    cd short-urls
+    sbt run
   
-To listern on specific port, e.g. 9999
+To listen on specific port, e.g. 9999
   
-  sbt "runMain HttpServer 9999"
+    sbt "runMain HttpServer 9999"
