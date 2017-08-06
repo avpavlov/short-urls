@@ -1,16 +1,14 @@
 import java.net.InetSocketAddress
 
-import com.google.common.base.Charsets
-import com.google.common.io.Resources
 import com.mongodb.{MongoClient, MongoClientURI}
 import com.twitter.finagle.builder.{Server, ServerBuilder}
 import com.twitter.finagle.http._
 import com.twitter.finagle.{Http, Service, SimpleFilter}
-import com.twitter.util.Future
 
 object HttpServer {
 
   val mongo = new MongoClient(new MongoClientURI("mongodb://avpavlov:avpavlov@ds141937.mlab.com:41937/avpavlov-urls"))
+  val urls = mongo.getDatabase("avpavlov-urls").getCollection("shorturls")
 
   class HandleExceptions extends SimpleFilter[Request, Response] {
     def apply(request: Request, service: Service[Request, Response]) = {
@@ -31,44 +29,32 @@ object HttpServer {
     }
   }
 
-  class Form extends Service[Request, Response] {
-    def apply(request: Request) = {
-      val response = Response(Version.Http11, Status.Ok)
-      response.contentString = Resources.toString(HttpServer.getClass.getResource("form.html"), Charsets.UTF_8)
-      Future.value(response)
-    }
-  }
-
-  class Converter extends Service[Request, Response] {
-    def apply(request: Request) = {
-      val response = Response(Version.Http11, Status.Ok)
-      response.contentString = "Converter " +request.path + " URL->"+  request.params("url")
-      Future.value(response)
-    }
-  }
-
-  class Redirector extends Service[Request, Response] {
-    def apply(request: Request) = {
-      val response = Response(Version.Http11, Status.Ok)
-      response.contentString = "Redirector " +request.path
-      Future.value(response)
-    }
-  }
-
-  def router : Service[Request, Response] = new HttpMuxer()
-      .withHandler("/c/", new Converter)
-      .withHandler("/r/", new Redirector)
-      .withHandler("/", new Form)
 
   def main(args: Array[String]) {
     val handleExceptions = new HandleExceptions
 
+    val (host,port) = args(0).split(":") match {
+      case Array(h,p) => (h, p.toInt)
+      case Array(h) => (h, 80)
+      case _ => throw new IllegalArgumentException("Program expects hostname[:port] argument")
+    }
+
+    val redirectMapping = "/r/"
+    val redirectPrefix = port match {
+      case 80 => "http://"+host+redirectMapping
+      case _ => "http://"+host+":"+port+redirectMapping
+    }
+
+    val router : Service[Request, Response] = new HttpMuxer()
+      .withHandler("/c/", new ConvertUrl(urls, redirectPrefix))
+      .withHandler(redirectMapping, new Redirect(urls))
+      .withHandler("/", new ShowForm)
+
     val shortUrlsService: Service[Request, Response] = handleExceptions andThen router
 
-    val port = if (args.length > 0) args(0).toInt else 8080
     val server: Server = ServerBuilder()
       .stack(Http.server)
-      .bindTo(new InetSocketAddress(port))
+      .bindTo(new InetSocketAddress(host, port))
       .name("httpserver")
       .build(shortUrlsService)
   }
