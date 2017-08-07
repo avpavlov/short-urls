@@ -2,7 +2,7 @@ To launch
   
     git clone https://github.com/avpavlov/short-urls.git
     cd short-urls
-    sbt "runMain HttpServer <hostname1>[:<port1>] [<hostname2>[:<port2>]]"
+    sbt "runMain HttpServer localhost:8080 localhost:8080"
 
 where
     hostname1:port1 is entry point to the server
