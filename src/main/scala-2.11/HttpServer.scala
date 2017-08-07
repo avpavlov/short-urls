@@ -33,7 +33,7 @@ object HttpServer {
   def main(args: Array[String]) {
     val handleExceptions = new HandleExceptions
 
-    val (host,port) = ("localhost", System.getProperty("PORT").toInt)
+    val (host,port) = ("localhost", System.getenv("PORT").toInt)
 
     val redirectMapping = "/r/"
     val redirectPrefix = "https://shrouded-oasis-50298.herokuapp.com/r/"
