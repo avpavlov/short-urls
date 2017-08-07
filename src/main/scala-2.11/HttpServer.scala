@@ -47,7 +47,7 @@ object HttpServer {
 
     val server: Server = ServerBuilder()
       .stack(Http.server)
-      .bindTo(new InetSocketAddress(host, port))
+      .bindTo(new InetSocketAddress(port))
       .name("httpserver")
       .build(shortUrlsService)
   }
