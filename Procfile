@@ -1,1 +1,1 @@
-web: sbt "runMain HttpServer $PORT https://shrouded-oasis-50298.herokuapp.com"
+web: target/universal/stage/bin/urls 
